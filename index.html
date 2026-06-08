@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Roadmap</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Mock window.storage
+    window.storage = {
+      get: async (key) => {
+        const value = localStorage.getItem(key);
+        return value !== null ? { value } : null;
+      },
+      set: async (key, value) => {
+        localStorage.setItem(key, value);
+      }
+    };
+
+    // Expose React hooks to global scope for the component
+    window.useState = React.useState;
+    window.useEffect = React.useEffect;
+    window.useMemo = React.useMemo;
+    window.useCallback = React.useCallback;
+  </script>
+  <script type="text/babel">
+
+
+// ── FONTS + HOVER STYLES ──────────────────────────────────────────────────────
+(() => {
+  if (document.getElementById("rm-st")) return;
+  const s = document.createElement("style");
+  s.id = "rm-st";
+  s.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700&display=swap');
+    #rm * { box-sizing: border-box; margin: 0; padding: 0; }
+    #rm textarea { resize: none; outline: none; }
+    #rm input[type=date] { color-scheme: dark; }
+    #rm ::-webkit-scrollbar { width: 3px; } #rm ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+    .rmh:hover { opacity: 0.88; } .rmc:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.15) !important; }
+    .rmtab:hover { color: #dce8f5 !important; } .rmd:hover { background: rgba(255,255,255,0.04) !important; }
+    .rmb:hover { opacity: 0.85; } button { cursor: pointer; }
+  `;
+  document.head.appendChild(s);
+})();
+
+// ── TOKENS ───────────────────────────────────────────────────────────────────
+const BG="#060c1a", SF="#0b1428", S2="#111e35", S3="#162540";
+const BD="#1a2d4a", BD2="#243d60";
+const TX="#dce8f5", MU="#5a7499", DM="#2d4263";
+const AC="#06c2d9", GR="#10d97e", AM="#f59e0b", PU="#a78bfa";
+const MC=["#06c2d9","#8b5cf6","#f59e0b","#ef4444","#10b981","#ec4899"];
+
+// ── MONTH META ────────────────────────────────────────────────────────────────
+const MM=[
+  {t:"Python to LLM Fluency",s:"Foundation Sprint",e:"⚡"},
+  {t:"Production RAG Mastery",s:"Retrieval Engineering",e:"🔍"},
+  {t:"Agentic AI Systems",s:"Agent Engineering",e:"🤖"},
+  {t:"Fine-tuning & Advanced LLM",s:"Model Training",e:"🧬"},
+  {t:"LLMOps & Production Systems",s:"Engineering at Scale",e:"🚀"},
+  {t:"Interview Prep & Applications",s:"Career Sprint",e:"🎯"},
+];
+
+// ── 24-WEEK ROADMAP DATA ──────────────────────────────────────────────────────
+// Weekday: { t: morning focus, e: evening task }
+// Saturday: { b: build project, d: deliverable }
+// Sunday:   { r: review, p: next week prep }
+const WK=[
+  {w:1,m:1,th:"Python for AI Foundations",
+   fo:"Set up your AI engineering environment. Master the Python tools every ML team uses daily.",
+   days:[
+    {t:"Python envs · pip · venv · Jupyter notebooks setup",e:"NumPy: arrays, ops, broadcasting — 30 exercises"},
+    {t:"Pandas: DataFrames, filter, groupby, merge, apply",e:"Analyze a real CSV dataset end-to-end (EDA)"},
+    {t:"Matplotlib + Seaborn: 5 chart types · data storytelling",e:"Create 5 visualizations from one dataset"},
+    {t:"Scikit-learn: pipeline, train/test split, metrics, cross-val",e:"Train first ML model (iris/titanic) with eval report"},
+    {t:"Hugging Face Hub: model cards, tokenizers, pipeline API",e:"Run BERT sentiment + GPT-2 generation locally"},
+    {b:"End-to-end data analysis: 3 ML models compared on one dataset",d:"Jupyter notebook published to GitHub with findings"},
+    {r:"Review gaps · Read 'The Illustrated Transformer' by Jay Alammar",p:"Set up OpenAI + Anthropic API keys · check rate limits"}
+  ]},
+  {w:2,m:1,th:"LLM APIs & Core Concepts",
+   fo:"Get fluent with LLM APIs. Understand what's happening under the hood: tokens, context, sampling.",
+   days:[
+    {t:"OpenAI API: messages format, parameters, token counting, costs",e:"10 API calls varying temp, max_tokens, system prompt"},
+    {t:"Anthropic Claude API: streaming, XML prompting, tool use",e:"Build a streaming terminal chatbot in Python (50 lines)"},
+    {t:"Transformer architecture: attention mechanism (visual explainer)",e:"Draw the attention mechanism + write 200-word explanation"},
+    {t:"Tokenization · context windows · temperature · sampling strategies",e:"Build a token counter + context window tracker tool"},
+    {t:"Structured output: Pydantic models + OpenAI function calling",e:"JSON extraction pipeline for 5 different schemas"},
+    {b:"Streaming chatbot with conversation history + FastAPI backend",d:"Working API endpoint + simple React/HTML frontend"},
+    {r:"Review all API patterns · HF transformers library deep dive",p:"LangChain install + run the quickstart tutorial end-to-end"}
+  ]},
+  {w:3,m:1,th:"Prompt Engineering Mastery",
+   fo:"Become a world-class prompt engineer. This separates good AI developers from great ones.",
+   days:[
+    {t:"Zero-shot · few-shot · chain-of-thought prompting",e:"Prompt testing notebook: eval 3 patterns on the same task"},
+    {t:"ReAct pattern · system prompts · role prompting · personas",e:"Implement ReAct loop manually in 50 lines (no framework)"},
+    {t:"XML structured prompting · output format control · tags",e:"Structured data extractor using XML output tags"},
+    {t:"Prompt chaining · meta-prompting · self-consistency voting",e:"3-step chain: plan → draft → critique + refine"},
+    {t:"LangChain basics: chains, PromptTemplate, output parsers",e:"Rewrite chatbot in LangChain LCEL in under 30 lines"},
+    {b:"Prompt engineering playground — all patterns side-by-side with evals",d:"Web tool showing output + eval score per prompting pattern"},
+    {r:"Review all prompt patterns · ChromaDB install + quickstart",p:"Read RAG paper abstract · watch 3B1B attention video"}
+  ]},
+  {w:4,m:1,th:"Embeddings + Month 1 Capstone",
+   fo:"Complete your first deployed AI app. DocuMind is your first portfolio entry.",
+   days:[
+    {t:"Embedding models: OpenAI text-embedding-3, BGE, Nomic-embed",e:"Semantic similarity search over 50 sentences"},
+    {t:"Cosine similarity · dot product · embedding visualization",e:"Visualize 100 embeddings with t-SNE/PCA"},
+    {t:"ChromaDB: create collection · add docs · query · metadata",e:"Index 100 documents + run 20 semantic queries"},
+    {t:"Naive RAG pipeline: chunk → embed → retrieve → generate",e:"Full RAG pipeline over 3 PDFs with source citation"},
+    {t:"FastAPI + React integration for RAG + streaming responses",e:"Connect RAG backend to React frontend with SSE"},
+    {b:"🏆 CAPSTONE 1: DocuMind — PDF Q&A with source citations",d:"Deployed on GCP Cloud Run · public URL · GitHub README"},
+    {r:"Write README + architecture diagram · push final code to GitHub",p:"Read Advanced RAG survey · RAGAS library setup"}
+  ]},
+  {w:5,m:2,th:"Advanced Retrieval Techniques",
+   fo:"Move beyond naive RAG. Advanced retrieval is the most asked-about topic in AI engineering interviews.",
+   days:[
+    {t:"Chunking strategies: fixed-size · recursive · semantic chunking",e:"Implement all 3 types · compare retrieval quality"},
+    {t:"Parent-child document retrieval (small chunks → large context)",e:"Build parent-child retriever · test on 5 questions"},
+    {t:"BM25 sparse retrieval · EnsembleRetriever hybrid search",e:"Hybrid vs dense-only: measure precision improvement"},
+    {t:"HyDE: Hypothetical Document Embeddings query transformation",e:"Implement HyDE · measure vs standard retrieval"},
+    {t:"Cross-encoder re-ranking · Cohere Rerank API integration",e:"Re-ranking pipeline: compare top-5 before and after"},
+    {b:"Hybrid RAG: chunking + HyDE + re-ranking pipeline",d:"Benchmark report: naive RAG vs advanced RAG metrics"},
+    {r:"Review all retrieval techniques · set up Pinecone free tier",p:"LCEL tutorial + LangChain runnables documentation"}
+  ]},
+  {w:6,m:2,th:"LangChain LCEL + Managed Vector DBs",
+   fo:"Learn production-grade LangChain patterns and managed vector DB infrastructure real teams use.",
+   days:[
+    {t:"LCEL: Runnables · .pipe() · parallel composition · passthrough",e:"Rewrite DocuMind RAG pipeline in pure LCEL"},
+    {t:"LangChain document loaders: PDF · web scraping · CSV · GitHub",e:"Load all 4 source types into a unified index"},
+    {t:"Pinecone: indexing · metadata filtering · namespaces · upsert",e:"Migrate DocuMind from ChromaDB to Pinecone"},
+    {t:"Multi-query retrieval: auto-generate 3 query variants, merge results",e:"Multi-query vs single: measure recall improvement"},
+    {t:"Conversational RAG: chat history compression + follow-up context",e:"Add follow-up question handling to DocuMind"},
+    {b:"EnterpriseRAG V1: multi-source ingestion + Pinecone backend",d:"PDF + CSV + web all queryable in one clean interface"},
+    {r:"Review LCEL patterns · build 50 Q&A ground truth eval pairs",p:"LangSmith account setup + tracing tutorial"}
+  ]},
+  {w:7,m:2,th:"RAG Evaluation & LangSmith",
+   fo:"Learn to measure your RAG system scientifically. Quoting RAGAS scores in interviews is elite-level.",
+   days:[
+    {t:"RAGAS: faithfulness + answer relevancy — theory + setup",e:"Run RAGAS on DocuMind: score 20 queries, log results"},
+    {t:"RAGAS: context precision + context recall + E2E scoring",e:"Full eval: get all 4 metric scores, identify weakest"},
+    {t:"LangSmith: tracing · debugging · dataset management setup",e:"Trace 10 RAG queries · inspect each retrieval step"},
+    {t:"Build ground truth eval dataset: 50 Q&A pairs with gold context",e:"Eval dataset covering 5 different topic areas"},
+    {t:"Tune RAG pipeline based on lowest scoring RAGAS metric",e:"Improve weakest metric by minimum 10 percentage points"},
+    {b:"React RAGAS evaluation dashboard — live metric display",d:"Dashboard: faithfulness · relevancy · precision · recall live"},
+    {r:"Review eval methodology · prompt caching for cost reduction",p:"Study error handling + fallback patterns for RAG"}
+  ]},
+  {w:8,m:2,th:"EnterpriseRAG Capstone",
+   fo:"Ship your flagship RAG system. This must be production-grade — it's your primary portfolio piece.",
+   days:[
+    {t:"Error handling in RAG: retries · fallbacks · graceful degradation",e:"Add retry logic + keyword search fallback strategy"},
+    {t:"Cost optimization: prompt caching · embedding caching · batching",e:"Measure cost-per-query · reduce by 30% minimum"},
+    {t:"Multi-format ingestion: PDF · CSV · web · Markdown — all working",e:"All 4 formats ingesting cleanly into one index"},
+    {t:"Streaming responses + real-time progress indicators in UI",e:"Add SSE streaming to FastAPI endpoint + React frontend"},
+    {t:"Final integration + React frontend polish + UX refinements",e:"Clean codebase · loading states · error UI · responsive"},
+    {b:"🏆 CAPSTONE 2: EnterpriseRAG complete + RAGAS eval dashboard",d:"GCP deployed · full README with RAGAS scores shown"},
+    {r:"Architecture diagram · LinkedIn post announcing EnterpriseRAG",p:"Agent foundations reading · LangChain agents tutorial"}
+  ]},
+  {w:9,m:3,th:"Agent Foundations & Tool Use",
+   fo:"Understand agents from first principles. Build the ReAct loop by hand first — no shortcuts.",
+   days:[
+    {t:"Agent fundamentals: reason–act–observe loop · agent taxonomies",e:"Read ReAct paper · draw the full loop on paper"},
+    {t:"Implement ReAct from scratch: pure Python · zero frameworks",e:"50-line working ReAct: search + calculator + memory"},
+    {t:"LangChain tools: Tavily · Wikipedia · shell · calculator · REPL",e:"Agent with 4 built-in tools + conversation buffer memory"},
+    {t:"Custom tool creation: Python function → @tool decorator pattern",e:"5 custom tools: GitHub API · Jira · weather · news"},
+    {t:"Agent memory: buffer · summary · entity · vector memory types",e:"Compare 3 memory types on a 10-turn conversation"},
+    {b:"Research agent: 6 tools + summary memory + structured report",d:"Agent researches a topic and writes a formatted report"},
+    {r:"Review all agent patterns · LangGraph quickstart docs",p:"Study StateGraph concept + LangGraph official examples"}
+  ]},
+  {w:10,m:3,th:"LangGraph Mastery",
+   fo:"LangGraph is the production standard for stateful multi-step agents. This skill alone unlocks senior roles.",
+   days:[
+    {t:"LangGraph: StateGraph · TypedDict state · nodes · edges · compile",e:"First working LangGraph: 3-node document processor"},
+    {t:"Conditional edges · branching logic · routing based on state",e:"Decision-tree agent with 3 different conditional paths"},
+    {t:"Human-in-the-loop: interrupt_before · interrupt_after patterns",e:"Agent that pauses for human approval at critical steps"},
+    {t:"Persistence + checkpointing: MemorySaver · SqliteSaver",e:"Resume an interrupted multi-step agent from checkpoint"},
+    {t:"Streaming in LangGraph: stream_mode events · token streaming",e:"Real-time token streaming from a multi-step agent"},
+    {b:"Stateful document processor: LangGraph + human review loop",d:"4 nodes · checkpointing · streaming output — fully working"},
+    {r:"Review LangGraph patterns · AutoGen installation + tutorial",p:"Study multi-agent design: supervisor · hierarchical patterns"}
+  ]},
+  {w:11,m:3,th:"Multi-Agent Systems",
+   fo:"Scale from one agent to many. AutoGen, CrewAI, and MCP are the toolkit production teams use.",
+   days:[
+    {t:"AutoGen: ConversableAgent · UserProxyAgent · nested chat",e:"3-agent conversation: planner + coder + code reviewer"},
+    {t:"AutoGen GroupChat: speaker selection · max_round · termination",e:"4-agent code review crew with specialized roles"},
+    {t:"CrewAI: agents · tasks · crews · sequential/hierarchical process",e:"3-person research crew end-to-end on real topic"},
+    {t:"Agent evaluation: trajectory eval · tool use accuracy metrics",e:"Build eval framework for your research agent from W9"},
+    {t:"MCP deep dive: servers · clients · tool schemas · stdio/SSE",e:"Connect custom MCP server to a LangGraph agent"},
+    {b:"Multi-agent pipeline: planner → executor → reviewer (AutoGen)",d:"Crew: plans coding task · codes it · reviews output"},
+    {r:"Review multi-agent patterns · design DevOps Platform arch",p:"GitHub API tutorial + PR webhook event payload format"}
+  ]},
+  {w:12,m:3,th:"DevOps Intelligence Platform Capstone",
+   fo:"Your magnum opus. This IS your Accenture work formalized. This project gets you hired.",
+   days:[
+    {t:"GitHub API: fetch PRs · parse diffs · get file tree · list comments",e:"Script: pull + parse PR data for 10 real test PRs"},
+    {t:"PR Review Agent: LangGraph · multi-step code analysis pipeline",e:"Full agent: security + logic + style analysis on PRs"},
+    {t:"Security Analysis Agent: OWASP Top 10 flagging in code diffs",e:"Agent that identifies vulnerabilities in code changes"},
+    {t:"Jira Integration Agent: create + update stories via REST API",e:"Agent creates Jira stories from PR summaries"},
+    {t:"Orchestrator coordination: wire all 3 agents via LangGraph state",e:"Full pipeline: GitHub PR in → reviewed → Jira story out"},
+    {b:"🏆 CAPSTONE 3: DevOps Intelligence Platform + React dashboard",d:"LangGraph orchestrated · GCP deployed · demo video recorded"},
+    {r:"LangSmith tracing · demo recording · LinkedIn post",p:"Fine-tuning vs RAG vs prompting decision framework study"}
+  ]},
+  {w:13,m:4,th:"Fine-tuning Foundations",
+   fo:"The decision framework is the most important thing this month. Nail this before touching code.",
+   days:[
+    {t:"FT vs RAG vs prompting: decision framework + 5 case studies",e:"Build a flowchart + apply framework to 5 real scenarios"},
+    {t:"LoRA theory: low-rank decomposition · adapter placement in layers",e:"Read LoRA paper summary · implement toy matrix decomp"},
+    {t:"QLoRA: 4-bit NF4 quantization + LoRA combined · BitsAndBytes",e:"QLoRA config on Colab · verify memory savings"},
+    {t:"PEFT library: LoraConfig · get_peft_model · trainable param %",e:"Apply LoRA to GPT-2 · print trainable param count (<1%)"},
+    {t:"HF Transformers: AutoModel · AutoTokenizer · generate() · Pipeline",e:"Load, tokenize, and run inference on 3 different models"},
+    {b:"First QLoRA fine-tuning run: Phi-2 on Google Colab free T4 GPU",d:"Working fine-tuned model + loss curve screenshot + notes"},
+    {r:"Review LoRA/PEFT concepts · TRL library + SFTTrainer docs",p:"Dataset format comparison: Alpaca vs ShareGPT vs ChatML"}
+  ]},
+  {w:14,m:4,th:"Dataset Curation & Model Training",
+   fo:"Build your own training dataset. Train Mistral 7B on Kaggle's free GPUs. Push to Hugging Face Hub.",
+   days:[
+    {t:"Dataset formats: Alpaca · ShareGPT · ChatML — convert between all 3",e:"Programmatic conversion: 100 rows between all 3 formats"},
+    {t:"Dataset curation: quality filters · deduplication · length filtering",e:"Clean a raw instruction dataset: remove junk rows"},
+    {t:"SFTTrainer: TrainingArguments · callbacks · checkpointing config",e:"Full training config for a supervised fine-tuning task"},
+    {t:"Fine-tune Mistral 7B with QLoRA on Kaggle (free T4 x2 GPUs)",e:"Complete training run · monitor loss · save adapter"},
+    {t:"Merge LoRA adapter into base model · push to Hugging Face Hub",e:"Public model on HF Hub with complete model card"},
+    {b:"Fine-tune on custom code review instruction dataset",d:"Domain fine-tuned model on HF Hub with eval results"},
+    {r:"Review training pipeline · GGUF quantization + Ollama setup",p:"Study benchmarks: ROUGE · BERTScore · HumanEval"}
+  ]},
+  {w:15,m:4,th:"Model Evaluation & Deployment",
+   fo:"Eval rigorously, deploy cleanly. The 3-way comparison dashboard proves your engineering depth.",
+   days:[
+    {t:"GGUF quantization: Q4_K_M vs Q8_0 — quality vs size tradeoffs",e:"Quantize your fine-tuned model to Q4 and Q8 levels"},
+    {t:"Ollama: local model serving · Modelfile · REST API compatibility",e:"Serve your quantized model via Ollama REST API"},
+    {t:"Benchmarks: ROUGE · BERTScore · perplexity on your test set",e:"Run benchmarks: fine-tuned vs base on 50 examples"},
+    {t:"LLM-as-judge evaluation: GPT-4 scores your model outputs",e:"Auto-eval pipeline: 50 outputs judged · win-rate calc"},
+    {t:"Side-by-side comparison: fine-tuned vs base model vs GPT-4",e:"React dashboard with win-rate + example pair display"},
+    {b:"Full evaluation dashboard: 3-way model comparison app",d:"React app: win-rate metrics · side-by-side outputs · scores"},
+    {r:"Review fine-tuning pipeline · DPO theory · RLHF overview",p:"Constitutional AI paper summary + alignment concepts"}
+  ]},
+  {w:16,m:4,th:"Advanced Topics + Fine-tuning Capstone",
+   fo:"Complete the fine-tuning journey. The eval report is as important as the model itself.",
+   days:[
+    {t:"Constitutional AI · RLAIF · preference data · alignment overview",e:"Summarize Anthropic Constitutional AI paper (5 key points)"},
+    {t:"Multi-modal: CLIP architecture · LLaVA · vision transformers intro",e:"GPT-4V API: analyze 5 images with structured output"},
+    {t:"FastAPI async serving for fine-tuned models · request batching",e:"Production async endpoint with request batching"},
+    {t:"Gradio: shareable model demo on Hugging Face Spaces",e:"Public demo on HF Spaces — share link on LinkedIn"},
+    {t:"Comprehensive eval report: when FT beats RAG and exactly why",e:"2-page engineering findings document with data"},
+    {b:"🏆 CAPSTONE 4: DomainTuned Code Review Assistant — complete",d:"HF Space demo live · FastAPI endpoint · eval report published"},
+    {r:"Architecture writeup · blog post draft about fine-tuning journey",p:"MLflow installation + experiment tracking quickstart"}
+  ]},
+  {w:17,m:5,th:"MLflow & Experiment Tracking",
+   fo:"Make all your past experiments reproducible. This is table stakes for any production ML role.",
+   days:[
+    {t:"MLflow: tracking server · experiments · runs · UI navigation",e:"Log 5 experiment runs from your RAG + FT projects"},
+    {t:"MLflow: log params · metrics · artifacts · model signatures",e:"Full logging implemented across all 4 portfolio projects"},
+    {t:"Model Registry: register model · stage transitions · promotion",e:"Promote one model: development → staging → production"},
+    {t:"W&B (Weights & Biases): experiments · sweeps · hyperparameter opt",e:"10-trial sweep on RAG chunking + retrieval parameters"},
+    {t:"Integrate MLflow retroactively into all 4 existing projects",e:"Every past experiment tracked and reproducible"},
+    {b:"MLflow tracking dashboard: all 4 projects visible + compared",d:"Full experiment history: params · metrics · artifacts logged"},
+    {r:"Review MLflow patterns · advanced FastAPI async + middleware",p:"SSE streaming implementation + WebSocket docs review"}
+  ]},
+  {w:18,m:5,th:"Production Serving & GCP Deployment",
+   fo:"Your FastAPI + GCP knowledge is your biggest edge here. Combine them with ML serving patterns.",
+   days:[
+    {t:"FastAPI advanced: async handlers · middleware · rate limiting · auth",e:"Add rate limiting + JWT auth to your RAG API"},
+    {t:"Server-Sent Events for LLM token streaming in production",e:"Streaming endpoint: tokens appear real-time in React UI"},
+    {t:"Docker multi-stage builds: reduce ML image size below 1GB",e:"Optimize your largest Docker image significantly"},
+    {t:"GCP Vertex AI: custom model endpoints · online prediction API",e:"Deploy a model to a Vertex AI endpoint"},
+    {t:"Load testing with Locust: simulate 100 concurrent users",e:"Profile your API: p50/p95/p99 latency targets"},
+    {b:"Dockerized production API stack deployed on GCP Cloud Run",d:"Load test report with latency + throughput in README"},
+    {r:"Review deployment patterns · LLM monitoring + alerting study",p:"DeepEval installation · LangSmith production setup"}
+  ]},
+  {w:19,m:5,th:"LLM Monitoring & CI/CD Quality Gates",
+   fo:"Build quality gates for LLM outputs in CI. Mature AI teams do this — almost nobody else does.",
+   days:[
+    {t:"DeepEval: G-EVAL · DAG-based eval · custom metric creation",e:"5 custom eval metrics designed for your AI platform"},
+    {t:"Hallucination detection: NLI-based + LLM-as-judge patterns",e:"Hallucination scanner tool integrated into RAG system"},
+    {t:"Guardrails AI: input/output validation · safety filter rules",e:"Add guardrails to all production API endpoints"},
+    {t:"A/B testing LLM responses: shadow deployment · traffic split",e:"Shadow deployment: new vs old RAG running in parallel"},
+    {t:"CI/CD quality gate: DeepEval test suite in GitHub Actions",e:"Auto-eval on every PR: fail if faithfulness drops"},
+    {b:"Full LLM eval pipeline in GitHub Actions CI/CD",d:"CI gate: auto-eval on every commit · badge in README"},
+    {r:"Review monitoring patterns · AI System Design study begins",p:"RAG at scale: caching layers · query routing · sharding"}
+  ]},
+  {w:20,m:5,th:"AI System Design + Platform MVP",
+   fo:"Think like a senior engineer. Design systems for scale. This is what 30 LPA buys.",
+   days:[
+    {t:"RAG at scale: query routing · caching layers · index sharding",e:"Design a RAG system for 10,000 RPS on paper"},
+    {t:"Agent reliability: idempotency · retries · circuit breakers",e:"Add fault tolerance patterns to DevOps Platform agent"},
+    {t:"LLM cost optimization: caching · batching · model selection router",e:"Reduce cost-per-request by 40% in one project"},
+    {t:"Data flywheel + feedback loop design patterns",e:"Design user feedback collection UI for EnterpriseRAG"},
+    {t:"Responsible AI: bias detection · safety auditing · fairness testing",e:"Run bias audit on your fine-tuned model · document"},
+    {b:"🏆 CAPSTONE 5: AI Platform MVP — all 4 projects integrated",d:"One platform: RAG + agents + MLflow + monitoring all live"},
+    {r:"Final architecture diagram · full portfolio writeup · LinkedIn",p:"Month 6 prep: resume draft + 50-Q GenAI interview bank"}
+  ]},
+  {w:21,m:6,th:"Resume, Portfolio & Personal Brand",
+   fo:"Frame everything you've built in AI Engineering language. Every project needs its own powerful story.",
+   days:[
+    {t:"Resume: reframe all Accenture projects in AI Engineering language",e:"Complete resume draft: 1 page, every bullet quantified"},
+    {t:"GitHub: polish all 4 project READMEs with demo GIFs + architecture",e:"All 4 READMEs done: problem · approach · results · link"},
+    {t:"LinkedIn: overhaul headline · about · featured · experience section",e:"Schedule 4 project posts for the next 2 weeks"},
+    {t:"GenAI interview Q bank (50 Qs): study Q1–10 · answer out loud",e:"Record yourself answering 10 Qs · review the recording"},
+    {t:"GenAI Q bank Q11–20 + RAG system design practice (spoken aloud)",e:"Draw complete RAG architecture from memory on paper"},
+    {b:"LeetCode sprint: 10 array + string mediums — timed at 30 min each",d:"10 attempted · weak patterns documented for next day"},
+    {r:"Study 2 AI system design patterns · review all week notes",p:"Research target companies: AI teams · open roles · stack"}
+  ]},
+  {w:22,m:6,th:"Technical Interview Mastery",
+   fo:"Convert your knowledge into interview performance. Practice out loud every day — not just in your head.",
+   days:[
+    {t:"GenAI Q bank Q21–30 · RAG system design mock (speak it out loud)",e:"Record 5-min explanation of your EnterpriseRAG system"},
+    {t:"Fine-tuning decision framework: perfect 5-min verbal explanation",e:"Explain LoRA/QLoRA clearly to a non-ML engineer"},
+    {t:"Agent system design: whiteboard DevOps Intelligence Platform",e:"Draw full LangGraph orchestration architecture from memory"},
+    {t:"LeetCode sprint: 10 tree + graph mediums (BFS · DFS · topo sort)",e:"Review solutions · identify recurring weak patterns"},
+    {t:"LLMOps + ML pipeline system design end-to-end mock",e:"Design LLMOps system for a hypothetical product company"},
+    {b:"FULL MOCK INTERVIEW 90 min: GenAI + system design + behavioral",d:"Recording reviewed · 3 weak areas identified"},
+    {r:"Targeted practice on weak areas · GenAI Q bank Q31–40",p:"Write 8 STAR-format behavioral stories from Accenture work"}
+  ]},
+  {w:23,m:6,th:"Application Sprint 1",
+   fo:"5–8 targeted applications per week. One warm referral beats 50 cold applications.",
+   days:[
+    {t:"Apply to 3 Tier C: Sarvam AI · Yellow.ai · Observe.AI",e:"10 LeetCode DP + sliding window mediums — timed"},
+    {t:"Warm referral outreach: craft 15 LinkedIn DMs to AI engineers",e:"Send referral requests to engineers at 3 target companies"},
+    {t:"Apply to 3 Tier B GCCs: Goldman Sachs · JPMorgan · Walmart Tech",e:"Research comp bands for all 6 applied companies"},
+    {t:"8 STAR behavioral stories from Accenture — timed rehearsal",e:"Rehearse all 8 stories out loud · keep each under 2 min"},
+    {t:"Apply to 2 Tier A companies · follow up all open applications",e:"GenAI Q bank Q41–50 final complete review"},
+    {b:"Full mock interview 2 + take-home AI assignment practice (timed)",d:"Mock done · take-home completed within 3 hours"},
+    {r:"Publish blog: DevOps Intelligence Platform deep-dive on Medium",p:"Prepare negotiation: floor · target · ceiling per company"}
+  ]},
+  {w:24,m:6,th:"Final Push, Negotiations & Offers",
+   fo:"You have invested 1,000+ hours. Execute. You are no longer a fresher — you are an AI Engineer.",
+   days:[
+    {t:"3 more applications + aggressive follow-up on all open apps",e:"Comp analysis spreadsheet: floor/target/ceiling per role"},
+    {t:"Salary negotiation prep: competing offers · counteroffer script",e:"Practice negotiation script with a friend — record it"},
+    {t:"3 more targeted applications + referral follow-ups",e:"Prepare thoroughly for any live interviews in pipeline"},
+    {t:"Full mock interview 3: maximum pressure · hardest questions only",e:"Review recording · refine 3 weakest answers specifically"},
+    {t:"Final portfolio audit: READMEs · broken demos · missing docs",e:"Fix every gap — all 4 projects demo cleanly"},
+    {b:"Rest day · light concept review · mental preparation",d:"Review your 6-month journey · see how far you have come"},
+    {r:"🎯 You've put in 1,000+ hours. Apply. Negotiate hard. Accept the right offer.",p:"The next chapter of your career begins now."}
+  ]},
+];
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+const SK="vk_ai_roadmap_v3";
+async function loadData(){
+  try{const r=await window.storage.get(SK);if(r?.value)return JSON.parse(r.value);}
+  catch(e){}
+  return{startDate:null,days:{}};
+}
+async function saveData(d){try{await window.storage.set(SK,JSON.stringify(d));}catch(e){}}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getDI(n){
+  if(n<1||n>168)return null;
+  const wi=Math.floor((n-1)/7),di=(n-1)%7;
+  const wk=WK[wi];
+  return{n,wi,di,week:wk,day:wk.days[di],isWknd:di>=5,mi:wk.m-1};
+}
+function mPct(m,days){
+  let done=0,tot=0;
+  for(let i=(m-1)*28+1;i<=(m-1)*28+28&&i<=168;i++){
+    const di=getDI(i);if(!di)continue;
+    const d=days[i]||{};
+    if(di.isWknd){tot++;if(d.b||d.r)done++;}
+    else{tot+=2;if(d.m)done++;if(d.e)done++;}
+  }
+  return tot>0?Math.round((done/tot)*100):0;
+}
+function todayN(sd){
+  if(!sd)return null;
+  const s=new Date(sd),t=new Date();
+  s.setHours(0,0,0,0);t.setHours(0,0,0,0);
+  const n=Math.floor((t-s)/864e5)+1;
+  return n<1?null:n>168?169:n;
+}
+function streak(days,tn){
+  if(!tn)return 0;
+  let s=0;
+  for(let n=Math.min(tn,168);n>=1;n--){
+    const d=days[n]||{},di=getDI(n);if(!di)continue;
+    const act=di.isWknd?(d.b||d.r):(d.m||d.e);
+    if(act)s++;else if(n<tn)break;
+  }
+  return s;
+}
+function totPct(days){
+  let done=0;
+  for(let n=1;n<=168;n++){
+    const di=getDI(n);if(!di)continue;
+    const d=days[n]||{};
+    if(di.isWknd){if(d.b||d.r)done+=2;}
+    else{if(d.m)done++;if(d.e)done++;}
+  }
+  return Math.round((done/336)*100);
+}
+function wPct(wi,days){
+  const ws=wi*7+1;let done=0,tot=0;
+  for(let i=ws;i<ws+7&&i<=168;i++){
+    const di=getDI(i);if(!di)continue;
+    const d=days[i]||{};
+    if(di.isWknd){tot++;if(d.b||d.r)done++;}
+    else{tot+=2;if(d.m)done++;if(d.e)done++;}
+  }
+  return tot>0?Math.round((done/tot)*100):0;
+}
+
+// ── RING ──────────────────────────────────────────────────────────────────────
+function Ring({pct,color,size=58,stroke=4}){
+  const r=(size-stroke*2)/2,c=2*Math.PI*r,off=c-(pct/100)*c;
+  return(
+    <div style={{position:"relative",width:size,height:size,flexShrink:0}}>
+      <svg width={size} height={size} style={{transform:"rotate(-90deg)",display:"block"}}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={BD} strokeWidth={stroke}/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+          strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off}
+          style={{transition:"stroke-dashoffset 0.7s ease"}}/>
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <span style={{fontSize:size>50?12:10,fontWeight:700,color}}>{pct}%</span>
+      </div>
+    </div>
+  );
+}
+
+// ── SETUP VIEW ────────────────────────────────────────────────────────────────
+function Setup({onStart}){
+  const[d,setD]=useState(new Date().toISOString().split("T")[0]);
+  const rows=[
+    ["🎯","Target Role","AI Engineer · 30 LPA"],
+    ["📅","Duration","6 months (168 days)"],
+    ["⏰","Daily Time","4h 15m weekdays · 10h weekends"],
+    ["🏗️","Projects","5 production capstones on GCP"],
+    ["💾","Storage","Progress saved automatically"],
+  ];
+  return(
+    <div style={{minHeight:"100vh",background:BG,display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:"'Outfit',sans-serif"}}>
+      <div style={{maxWidth:440,width:"100%",background:SF,border:`1px solid ${BD}`,borderRadius:16,padding:32,textAlign:"center"}}>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:18,fontWeight:900,color:AC,letterSpacing:3,marginBottom:4}}>AI ENGINEER</div>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:10,color:MU,letterSpacing:4,marginBottom:26}}>6-MONTH ROADMAP</div>
+        <div style={{fontSize:42,marginBottom:18}}>⚡</div>
+        <p style={{color:MU,fontSize:13,lineHeight:1.7,marginBottom:22}}>
+          From beginner to AI Engineer in 168 days.<br/>
+          ~41 hrs/week · 5 capstones · one massive career jump.
+        </p>
+        <div style={{background:S2,borderRadius:10,padding:14,marginBottom:22,textAlign:"left"}}>
+          {rows.map(([ic,lb,vl])=>(
+            <div key={lb} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,fontSize:12}}>
+              <span style={{width:18,flexShrink:0}}>{ic}</span>
+              <span style={{color:MU,minWidth:85}}>{lb}</span>
+              <span style={{color:TX,fontWeight:500}}>{vl}</span>
+            </div>
+          ))}
+        </div>
+        <label style={{display:"block",fontSize:11,color:MU,letterSpacing:1,marginBottom:6,textAlign:"left"}}>YOUR START DATE</label>
+        <input type="date" value={d} onChange={e=>setD(e.target.value)}
+          style={{width:"100%",padding:"10px 12px",background:S2,border:`1px solid ${BD}`,borderRadius:8,color:TX,fontSize:14,fontFamily:"'Outfit',sans-serif",marginBottom:18}}/>
+        <button onClick={()=>onStart(d)} className="rmb" style={{
+          width:"100%",padding:14,background:AC,border:"none",borderRadius:10,
+          color:"#000",fontFamily:"'Outfit',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1
+        }}>START THE JOURNEY →</button>
+      </div>
+    </div>
+  );
+}
+
+// ── HEADER ────────────────────────────────────────────────────────────────────
+function Header({tn,stk,pct}){
+  const inf=tn&&tn<=168?getDI(tn):null;
+  return(
+    <div style={{background:SF,borderBottom:`1px solid ${BD}`,padding:"10px 16px",display:"flex",alignItems:"center",gap:12}}>
+      <div style={{flex:1}}>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontWeight:700,fontSize:11,letterSpacing:2,color:AC}}>AI ENGINEER ROADMAP</div>
+        <div style={{fontSize:11,color:MU,marginTop:2}}>
+          {tn===169?"Journey Complete 🏆":tn?`Day ${tn} of 168 · Month ${inf?.week.m||"?"} · Week ${inf?inf.wi%4+1:"?"}` :"Set start date to begin"}
+        </div>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:14}}>
+        {stk>0&&(
+          <div style={{textAlign:"center"}}>
+            <div style={{fontSize:16}}>🔥</div>
+            <div style={{fontSize:10,color:AM,fontWeight:600,marginTop:1}}>{stk}d</div>
+          </div>
+        )}
+        <Ring pct={pct} color={AC} size={52} stroke={4}/>
+      </div>
+    </div>
+  );
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function Tabs({view,sm,setView,setSm}){
+  const tabs=[{id:"today",l:"Today"},{id:"overview",l:"Overview"},
+    ...MM.map((_,i)=>({id:`m${i+1}`,l:`M${i+1}`}))];
+  return(
+    <div style={{display:"flex",background:SF,borderBottom:`1px solid ${BD}`,overflowX:"auto",padding:"0 10px",gap:2}}>
+      {tabs.map(tab=>{
+        const isM=tab.id.startsWith("m");
+        const active=view===tab.id||(isM&&view==="month"&&`m${sm}`===tab.id);
+        const col=active?(isM&&view==="month"?MC[sm-1]:AC):MU;
+        return(
+          <button key={tab.id} className="rmtab" onClick={()=>{
+            if(isM){setSm(+tab.id.slice(1));setView("month");}else setView(tab.id);
+          }} style={{
+            padding:"11px 11px",border:"none",background:"transparent",
+            fontFamily:"'Outfit',sans-serif",fontSize:12,fontWeight:500,
+            whiteSpace:"nowrap",color:col,
+            borderBottom:`2px solid ${active?col:"transparent"}`,
+            transition:"all 0.2s"
+          }}>{tab.l}</button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── TODAY VIEW ────────────────────────────────────────────────────────────────
+function Today({tn,data,onToggle,onNote}){
+  const[note,setNote]=useState("");
+  const inf=useMemo(()=>tn&&tn<=168?getDI(tn):null,[tn]);
+  useEffect(()=>{if(tn)setNote(data.days[tn]?.note||"");},[tn]);
+
+  if(tn===169)return(
+    <div style={{textAlign:"center",padding:"60px 20px"}}>
+      <div style={{fontSize:48,marginBottom:16}}>🏆</div>
+      <div style={{fontSize:20,color:TX,fontWeight:600,marginBottom:8}}>Journey Complete!</div>
+      <div style={{color:MU,fontSize:14}}>You completed all 168 days. Apply, negotiate hard, land the 30 LPA offer.</div>
+    </div>
+  );
+  if(!inf)return(
+    <div style={{textAlign:"center",padding:"60px 20px"}}>
+      <div style={{fontSize:48,marginBottom:16}}>📅</div>
+      <div style={{fontSize:16,color:TX}}>Set your start date to begin tracking</div>
+    </div>
+  );
+
+  const{n,week,day,isWknd,mi}=inf;
+  const mc=MC[mi],saved=data.days[n]||{};
+  const isSat=(n-1)%7===5,isSun=(n-1)%7===6;
+  const DNS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  const wp=wPct(inf.wi,data.days),mp=mPct(week.m,data.days);
+
+  return(
+    <div style={{paddingBottom:16}}>
+      <div style={{background:SF,border:`1px solid ${mc}28`,borderRadius:12,padding:16,marginBottom:12,position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:-20,right:-20,width:140,height:140,background:`radial-gradient(circle,${mc}14 0%,transparent 70%)`,pointerEvents:"none"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,flexWrap:"wrap"}}>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6,flexWrap:"wrap"}}>
+              <span style={{background:`${mc}20`,color:mc,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700,border:`1px solid ${mc}38`,letterSpacing:.5}}>
+                {isWknd?(isSat?"SATURDAY BUILD":"SUNDAY REVIEW"):`${DNS[(n-1)%7].toUpperCase()} · WEEK ${inf.wi%4+1}`}
+              </span>
+              <span style={{color:MU,fontSize:10}}>Day {n}/168</span>
+              <span style={{color:mc,fontSize:10,fontWeight:600}}>Month {week.m}</span>
+            </div>
+            <div style={{fontSize:17,fontWeight:700,color:TX,marginBottom:3,lineHeight:1.3}}>{week.th}</div>
+            <div style={{fontSize:12,color:MU,lineHeight:1.6,maxWidth:480}}>{week.fo}</div>
+          </div>
+          <div style={{display:"flex",gap:10}}>
+            <div style={{textAlign:"center"}}>
+              <Ring pct={wp} color={mc} size={46} stroke={3}/>
+              <div style={{fontSize:9,color:MU,marginTop:2}}>week</div>
+            </div>
+            <div style={{textAlign:"center"}}>
+              <Ring pct={mp} color={mc} size={46} stroke={3}/>
+              <div style={{fontSize:9,color:MU,marginTop:2}}>month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {isWknd?(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {isSat&&<TCard ic="🏗️" lb="SATURDAY BUILD" su="Full-day project sprint" col={AM}
+            done={!!saved.b} onToggle={()=>onToggle(n,"b")} t={day.b} ex={day.d} exl="DELIVERABLE"/>}
+          {isSun&&<TCard ic="📖" lb="SUNDAY REVIEW & PREP" su="Review gaps · preview next week" col={PU}
+            done={!!saved.r} onToggle={()=>onToggle(n,"r")} t={day.r} ex={day.p} exl="NEXT WEEK PREP"/>}
+        </div>
+      ):(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <TCard ic="🧠" lb="MORNING BLOCK" su="8:30 – 10:45 AM · 2h 15m · Study & Theory" col={AC}
+            done={!!saved.m} onToggle={()=>onToggle(n,"m")} t={day.t}/>
+          <TCard ic="💻" lb="EVENING BLOCK" su="9:30 – 11:30 PM · 2h · Code & Build" col={GR}
+            done={!!saved.e} onToggle={()=>onToggle(n,"e")} t={day.e}/>
+        </div>
+      )}
+
+      <div style={{background:SF,border:`1px solid ${BD}`,borderRadius:12,padding:14,marginTop:10}}>
+        <div style={{fontSize:10,color:MU,fontWeight:600,letterSpacing:1,marginBottom:6}}>📝 TODAY'S LOG</div>
+        <textarea value={note} onChange={e=>setNote(e.target.value)} onBlur={()=>onNote(n,note)}
+          placeholder="What did you learn? What clicked? What was hard? Any blockers?"
+          style={{width:"100%",background:S2,border:`1px solid ${BD}`,borderRadius:8,
+            padding:"9px 11px",color:TX,fontFamily:"'Outfit',sans-serif",fontSize:12,
+            lineHeight:1.6,minHeight:68,display:"block"}}/>
+      </div>
+    </div>
+  );
+}
+
+function TCard({ic,lb,su,col,done,onToggle,t,ex,exl}){
+  return(
+    <div onClick={onToggle} className="rmh" style={{
+      background:done?`${col}0e`:SF,border:`1px solid ${done?col+"44":BD}`,
+      borderRadius:12,padding:16,cursor:"pointer",transition:"all 0.2s",
+      position:"relative",overflow:"hidden"
+    }}>
+      {done&&<div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${col},transparent)`}}/>}
+      <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+        <div style={{width:36,height:36,borderRadius:9,background:`${col}16`,
+          border:`1px solid ${col}30`,display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:16,flexShrink:0}}>{ic}</div>
+        <div style={{flex:1}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
+            <span style={{fontSize:10,fontWeight:700,color:col,letterSpacing:1.2}}>{lb}</span>
+            <div style={{width:20,height:20,borderRadius:5,background:done?col:"transparent",
+              border:`2px solid ${done?col:DM}`,display:"flex",alignItems:"center",
+              justifyContent:"center",fontSize:12,color:done?"#000":DM,flexShrink:0}}>
+              {done&&"✓"}
+            </div>
+          </div>
+          <div style={{fontSize:11,color:MU,marginBottom:6}}>{su}</div>
+          <div style={{fontSize:13,color:done?MU:TX,fontWeight:500,lineHeight:1.6,
+            textDecoration:done?"line-through":"none"}}>{t}</div>
+          {ex&&(
+            <div style={{marginTop:9,background:S3,borderRadius:7,padding:"7px 11px",borderLeft:`3px solid ${col}70`}}>
+              <div style={{fontSize:9,color:col,fontWeight:700,letterSpacing:1,marginBottom:2}}>{exl}</div>
+              <div style={{fontSize:12,color:MU,lineHeight:1.5}}>{ex}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────────
+function Overview({data,tn,onMonth}){
+  const inf=tn&&tn<=168?getDI(tn):null;
+  const logged=Object.keys(data.days).length;
+  const checked=Object.values(data.days).reduce((a,d)=>{
+    if(d.m)a++;if(d.e)a++;if(d.b)a++;if(d.r)a++;return a;
+  },0);
+  return(
+    <div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:16}}>
+        {[[logged,"Days Logged",AC],[checked,"Tasks Done",GR],[inf?`M${inf.week.m} W${inf.wi%4+1}`:"—","Current",AM]].map(([v,l,c])=>(
+          <div key={l} style={{background:SF,border:`1px solid ${BD}`,borderRadius:10,padding:"13px 10px",textAlign:"center"}}>
+            <div style={{fontSize:20,fontWeight:700,color:c,marginBottom:3}}>{v}</div>
+            <div style={{fontSize:10,color:MU}}>{l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:12}}>
+        {MM.map((meta,i)=>{
+          const m=i+1,mc=MC[i],p=mPct(m,data.days),isCurr=inf?.week.m===m;
+          return(
+            <div key={m} className="rmc" onClick={()=>onMonth(m)} style={{
+              background:SF,border:`1px solid ${isCurr?mc:BD}`,borderRadius:14,
+              padding:16,cursor:"pointer",transition:"all 0.2s",
+              boxShadow:isCurr?`0 0 16px ${mc}18`:"none",
+              position:"relative",overflow:"hidden"
+            }}>
+              {isCurr&&<div style={{position:"absolute",top:0,left:0,right:0,height:2,background:mc}}/>}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
+                <div>
+                  <div style={{fontSize:22,marginBottom:5}}>{meta.e}</div>
+                  <div style={{fontSize:9,color:mc,fontWeight:700,letterSpacing:1.5,marginBottom:2}}>MONTH {m}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:TX,lineHeight:1.3,marginBottom:2}}>{meta.t}</div>
+                  <div style={{fontSize:11,color:MU}}>{meta.s}</div>
+                </div>
+                <Ring pct={p} color={mc} size={48} stroke={4}/>
+              </div>
+              <div style={{background:S2,borderRadius:3,height:5}}>
+                <div style={{height:"100%",borderRadius:3,background:mc,width:`${p}%`,transition:"width 0.6s"}}/>
+              </div>
+              {isCurr&&<div style={{marginTop:7,fontSize:9,color:mc,fontWeight:700,letterSpacing:1}}>← CURRENT MONTH</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── MONTH VIEW ────────────────────────────────────────────────────────────────
+function MonthView({month,data,tn,onToggle,onNote}){
+  const[exp,setExp]=useState(null);
+  const mc=MC[month-1],meta=MM[month-1],p=mPct(month,data.days);
+  const mWeeks=WK.filter(w=>w.m===month);
+  const DNS=["MON","TUE","WED","THU","FRI","SAT","SUN"];
+  return(
+    <div>
+      <div style={{background:SF,border:`1px solid ${mc}38`,borderRadius:14,padding:16,marginBottom:14}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+          <div>
+            <div style={{fontSize:26,marginBottom:5}}>{meta.e}</div>
+            <div style={{fontSize:9,color:mc,fontWeight:700,letterSpacing:2,marginBottom:3}}>MONTH {month}</div>
+            <div style={{fontSize:17,fontWeight:700,color:TX,marginBottom:1}}>{meta.t}</div>
+            <div style={{fontSize:12,color:MU}}>{meta.s}</div>
+          </div>
+          <Ring pct={p} color={mc} size={62} stroke={5}/>
+        </div>
+      </div>
+      {mWeeks.map(wk=>{
+        const ws=(wk.w-1)*7+1,isCW=tn&&tn>=ws&&tn<ws+7,wp=wPct(wk.wi||wk.w-1,data.days);
+        return(
+          <div key={wk.w} style={{background:SF,border:`1px solid ${isCW?mc:BD}`,borderRadius:14,marginBottom:10,overflow:"hidden",boxShadow:isCW?`0 0 12px ${mc}10`:""}}>
+            {isCW&&<div style={{height:2,background:mc}}/>}
+            <div style={{padding:"12px 14px",borderBottom:`1px solid ${BD}`,display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,flexWrap:"wrap"}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:9,color:mc,fontWeight:700,letterSpacing:1.5,marginBottom:2}}>WEEK {wk.w}{isCW?" · CURRENT":""}</div>
+                <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:2}}>{wk.th}</div>
+                <div style={{fontSize:11,color:MU,lineHeight:1.5,maxWidth:480}}>{wk.fo}</div>
+              </div>
+              <Ring pct={wp} color={mc} size={42} stroke={3}/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
+              {DNS.map((dn,di)=>{
+                const aD=ws+di;if(aD>168)return<div key={di}/>;
+                const sv=data.days[aD]||{},isT=aD===tn,isW=di>=5;
+                const isDn=isW?(sv.b||sv.r):(sv.m&&sv.e);
+                const isPt=!isDn&&!isW&&(sv.m||sv.e);
+                return(
+                  <div key={di} className="rmd" onClick={()=>setExp(exp===aD?null:aD)}
+                    style={{padding:"9px 3px",textAlign:"center",cursor:"pointer",
+                      borderRight:di<6?`1px solid ${BD}`:"none",
+                      background:isT?`${mc}15`:exp===aD?S3:"transparent",transition:"background 0.15s"}}>
+                    <div style={{fontSize:8,color:MU,marginBottom:3,fontWeight:600,letterSpacing:.3}}>{dn}</div>
+                    <div style={{width:26,height:26,borderRadius:6,margin:"0 auto",
+                      display:"flex",alignItems:"center",justifyContent:"center",
+                      background:isDn?mc:isPt?`${mc}38`:isT?`${mc}22`:"transparent",
+                      border:`1.5px solid ${isDn?mc:isT?mc:isPt?mc+"60":BD2}`,
+                      color:isDn?"#000":isT?mc:TX,fontSize:10,fontWeight:700}}>
+                      {isDn?"✓":isPt?"½":di+1}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {exp!==null&&exp>=ws&&exp<ws+7&&(
+              <DayDetail n={exp} data={data} mc={mc} onToggle={onToggle} onNote={onNote}/>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── DAY DETAIL ────────────────────────────────────────────────────────────────
+function DayDetail({n,data,mc,onToggle,onNote}){
+  const inf=getDI(n);if(!inf)return null;
+  const{day,isWknd}=inf,sv=data.days[n]||{};
+  const[note,setNote]=useState(sv.note||"");
+  const isSat=(n-1)%7===5;
+  const DNS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  return(
+    <div style={{borderTop:`1px solid ${BD}`,background:S2,padding:14}}>
+      <div style={{fontSize:9,color:mc,fontWeight:700,letterSpacing:1.5,marginBottom:10}}>
+        {DNS[(n-1)%7].toUpperCase()} — DAY {n} OF 168
+      </div>
+      {isWknd?(
+        <div>
+          {isSat?(
+            <>
+              <Blk col={AM} ic="🏗️" lb="BUILD PROJECT" txt={day.b} done={!!sv.b} onToggle={()=>onToggle(n,"b")}/>
+              <Sub col={AM} lb="DELIVERABLE" txt={day.d}/>
+            </>
+          ):(
+            <>
+              <Blk col={PU} ic="📖" lb="REVIEW + PREP" txt={day.r} done={!!sv.r} onToggle={()=>onToggle(n,"r")}/>
+              <Sub col={PU} lb="NEXT WEEK PREP" txt={day.p}/>
+            </>
+          )}
+        </div>
+      ):(
+        <div style={{display:"flex",flexDirection:"column",gap:9}}>
+          <Blk col={AC} ic="🧠" lb="MORNING 8:30–10:45 AM" txt={day.t} done={!!sv.m} onToggle={()=>onToggle(n,"m")}/>
+          <Blk col={GR} ic="💻" lb="EVENING 9:30–11:30 PM" txt={day.e} done={!!sv.e} onToggle={()=>onToggle(n,"e")}/>
+        </div>
+      )}
+      <textarea value={note} onChange={e=>setNote(e.target.value)} onBlur={()=>onNote(n,note)}
+        placeholder="Add a note for this day..."
+        style={{marginTop:10,width:"100%",background:SF,border:`1px solid ${BD}`,
+          borderRadius:7,padding:"7px 10px",color:TX,fontFamily:"'Outfit',sans-serif",
+          fontSize:11,lineHeight:1.5,minHeight:48,display:"block"}}/>
+    </div>
+  );
+}
+function Blk({col,ic,lb,txt,done,onToggle}){
+  return(
+    <div style={{marginBottom:4}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+        <span style={{fontSize:9,color:col,fontWeight:700,letterSpacing:1}}>{ic} {lb}</span>
+        <button onClick={e=>{e.stopPropagation();onToggle();}} style={{
+          padding:"2px 10px",background:done?`${col}22`:"transparent",
+          border:`1px solid ${done?col:BD2}`,borderRadius:5,color:done?col:MU,
+          fontSize:10,fontWeight:600,fontFamily:"'Outfit',sans-serif"
+        }}>{done?"✓ Done":"Mark done"}</button>
+      </div>
+      <div style={{fontSize:12,color:done?MU:TX,lineHeight:1.5,textDecoration:done?"line-through":"none"}}>{txt}</div>
+    </div>
+  );
+}
+function Sub({col,lb,txt}){
+  return(
+    <div style={{background:SF,borderRadius:7,padding:"7px 10px",marginTop:5,borderLeft:`3px solid ${col}55`}}>
+      <div style={{fontSize:8,color:col,fontWeight:700,letterSpacing:1,marginBottom:2}}>{lb}</div>
+      <div style={{fontSize:11,color:MU,lineHeight:1.5}}>{txt}</div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+function App(){
+  const[data,setData]=useState(null);
+  const[view,setView]=useState("today");
+  const[sm,setSm]=useState(1);
+
+  useEffect(()=>{loadData().then(setData);},[]);
+
+  const save=useCallback(async(next)=>{setData(next);await saveData(next);},[]);
+  const tn=useMemo(()=>data?todayN(data.startDate):null,[data?.startDate]);
+  const stk=useMemo(()=>data?streak(data.days||{},tn):0,[data,tn]);
+  const pct=useMemo(()=>data?totPct(data.days||{}):0,[data]);
+
+  const toggle=useCallback(async(n,f)=>{
+    const prev=(data.days||{})[n]||{};
+    await save({...data,days:{...(data.days||{}),[n]:{...prev,[f]:!prev[f]}}});
+  },[data,save]);
+  const note=useCallback(async(n,t)=>{
+    const prev=(data.days||{})[n]||{};
+    await save({...data,days:{...(data.days||{}),[n]:{...prev,note:t}}});
+  },[data,save]);
+
+  if(!data)return(
+    <div style={{height:"100vh",background:BG,display:"flex",alignItems:"center",justifyContent:"center",color:MU,fontFamily:"'Outfit',sans-serif",fontSize:13}}>
+      Loading your roadmap...
+    </div>
+  );
+
+  if(!data.startDate)return<Setup onStart={d=>save({...data,startDate:d})}/>;
+
+  return(
+    <div id="rm" style={{minHeight:"100vh",background:BG,color:TX,fontFamily:"'Outfit',sans-serif"}}>
+      <Header tn={tn} stk={stk} pct={pct}/>
+      <Tabs view={view} sm={sm} setView={setView} setSm={setSm}/>
+      <div style={{maxWidth:840,margin:"0 auto",padding:"14px 13px"}}>
+        {view==="today"&&<Today tn={tn} data={data} onToggle={toggle} onNote={note}/>}
+        {view==="overview"&&<Overview data={data} tn={tn} onMonth={m=>{setSm(m);setView("month");}}/>}
+        {view==="month"&&<MonthView month={sm} data={data} tn={tn} onToggle={toggle} onNote={note}/>}
+      </div>
+    </div>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
