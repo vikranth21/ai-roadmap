@@ -420,7 +420,9 @@ function Ring({pct,color,size=58,stroke=4}){
 
 // ── SETUP VIEW ────────────────────────────────────────────────────────────────
 function Setup({onStart}){
-  const[d,setD]=useState(new Date().toISOString().split("T")[0]);
+  const tm = new Date();
+  tm.setDate(tm.getDate() + 1);
+  const[d,setD]=useState(tm.toISOString().split("T")[0]);
   const rows=[
     ["🎯","Target Role","AI Engineer · 30 LPA"],
     ["📅","Duration","6 months (168 days)"],
