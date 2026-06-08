@@ -367,7 +367,7 @@ function todayN(sd){
   const s=new Date(sd),t=new Date();
   s.setHours(0,0,0,0);t.setHours(0,0,0,0);
   const n=Math.floor((t-s)/864e5)+1;
-  return n<1?null:n>168?169:n;
+  return n>168?169:n;
 }
 function streak(days,tn){
   if(!tn)return 0;
@@ -469,7 +469,7 @@ function Header({tn,stk,pct}){
       <div style={{flex:1}}>
         <div style={{fontFamily:"'Orbitron',sans-serif",fontWeight:700,fontSize:11,letterSpacing:2,color:AC}}>AI ENGINEER ROADMAP</div>
         <div style={{fontSize:11,color:MU,marginTop:2}}>
-          {tn===169?"Journey Complete 🏆":tn?`Day ${tn} of 168 · Month ${inf?.week.m||"?"} · Week ${inf?inf.wi%4+1:"?"}` :"Set start date to begin"}
+          {tn===169?"Journey Complete 🏆":tn!==null?(tn<1?`Journey starts in ${1-tn} day(s)`:`Day ${tn} of 168 · Month ${inf?.week.m||"?"} · Week ${inf?inf.wi%4+1:"?"}`) :"Set start date to begin"}
         </div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:14}}>
@@ -522,6 +522,13 @@ function Today({tn,data,onToggle,onNote}){
       <div style={{fontSize:48,marginBottom:16}}>🏆</div>
       <div style={{fontSize:20,color:TX,fontWeight:600,marginBottom:8}}>Journey Complete!</div>
       <div style={{color:MU,fontSize:14}}>You completed all 168 days. Apply, negotiate hard, land the 30 LPA offer.</div>
+    </div>
+  );
+  if(tn!==null&&tn<1)return(
+    <div style={{textAlign:"center",padding:"60px 20px"}}>
+      <div style={{fontSize:48,marginBottom:16}}>⏳</div>
+      <div style={{fontSize:16,color:TX}}>Your journey starts in {1-tn} day{1-tn!==1?"s":""}.</div>
+      <div style={{color:MU,fontSize:14,marginTop:8}}>Take a break and get ready!</div>
     </div>
   );
   if(!inf)return(
